@@ -30,9 +30,21 @@ variable "port_mappings" {
 }
 
 variable "healthcheck" {
-  type        = "map"
+  type = object({
+    command     = list(string)
+    retries     = number
+    timeout     = number
+    interval    = number
+    startPeriod = number
+  })
   description = "A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries)"
-  default     = {}
+  default = ({
+    command     = []
+    retries     = 3
+    timeout     = 5
+    interval    = 30
+    startPeriod = null
+  })
 }
 
 variable "container_cpu" {
@@ -158,4 +170,10 @@ variable "container_depends_on" {
 variable "stop_timeout" {
   description = "Timeout in seconds between sending SIGTERM and SIGKILL to container"
   default     = 30
+}
+
+variable "privileged" {
+  type        = "string"
+  description = "When this variable is true, the container is given elevated privileges on the host container instance (similar to the root user). This parameter is not supported for Windows containers or tasks using the Fargate launch type. Due to how Terraform type casts booleans in json it is required to double quote this value"
+  default     = ""
 }
